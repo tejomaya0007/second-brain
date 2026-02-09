@@ -39,11 +39,13 @@ app.use("/api/knowledge", knowledgeRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// Use Railway/hosting port if provided, otherwise fall back to config.port or 4001
+const PORT = process.env.PORT || config.port || 4001;
+
 const start = async () => {
   await connectDB();
-  app.listen(config.port, () => {
-    console.log(`Server running on http://localhost:${config.port}`);
-    console.log("Using SQLite");
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 };
 
