@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 4%;
+    --surface: 240 10% 7%;
+    --surface-elevated: 240 10% 10%;
+    --border: 240 5% 15%;
+    --border-glow: 270 60% 50%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    @apply text-gray-100 antialiased;
+  }
+
+  ::selection {
+    background-color: rgba(139, 92, 246, 0.3);
+    color: white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    @apply rounded-full hover:bg-gray-600 transition-colors;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background-color: hsla(var(--surface), 0.6);
+    border-color: hsl(var(--border));
+    @apply backdrop-blur-xl border rounded-2xl transition-all duration-300;
+  }
+  
+  .glass-card-elevated {
+    background-color: hsla(var(--surface-elevated), 0.8);
+    @apply backdrop-blur-2xl border border-white/10 rounded-2xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent-one via-accent-two to-accent-three;
+  }
+}
