@@ -18,7 +18,7 @@ export const register = async (req, res, next) => {
     // For cross-origin frontend (localhost:5173) <-> backend (localhost:4001),
     // we need SameSite=None so the cookie is sent on XHR/fetch.
     sameSite: 'none',
-    secure: isProduction ? true : true, // localhost is treated as secure by modern browsers
+    secure: true, // localhost is treated as secure by modern browsers
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -39,7 +39,7 @@ export const login = async (req, res, next) => {
     httpOnly: true,
     // Match register() cookie options for cross-origin frontend/backend
     sameSite: 'none',
-    secure: isProduction ? true : true,
+    secure: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -47,7 +47,12 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = async (req, res, next) => {
-  res.clearCookie('token');
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+  });
+
   res.json({ message: 'Logged out successfully' });
 };
 
