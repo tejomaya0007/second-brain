@@ -1,33 +1,34 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authApi } from '../services/authApi.js';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { authApi } from "../services/authApi";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context;
+  return ctx;
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check current user on mount using cookie
+  // ✅ CHECK SESSION ON LOAD (CORRECT WAY)
   useEffect(() => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    fetch("/api/auth/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
-}, []);
-
+    authApi
+      .me()
+      .then((res) => {
+        setUser(res.data.user ?? res.data);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const login = async (credentials) => {
     try {
@@ -35,8 +36,10 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
-      return { success: false, error: message };
+      return {
+        success: false,
+        error: error.response?.data?.message || "Login failed",
+      };
     }
   };
 
@@ -46,42 +49,32 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
-      return { success: false, error: message };
+      return {
+        success: false,
+        error: error.response?.data?.message || "Registration failed",
+      };
     }
   };
 
   const logout = async () => {
     try {
       await authApi.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
     } finally {
       setUser(null);
     }
   };
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated: !!user,
-    login,
-    register,
-    logout,
-    updateProfile: async (updates) => {
-      try {
-        const { data } = await authApi.updateMe(updates);
-        setUser(data.user);
-        return { success: true };
-      } catch (error) {
-        const message = error.response?.data?.message || 'Update failed';
-        return { success: false, error: message };
-      }
-    },
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
