@@ -14,11 +14,10 @@ const app = express();
 
 /* =========================
    CORS (Vercel + Localhost)
+   - Allow local dev: http://localhost:5173
+   - Allow any Vercel deployment: *.vercel.app
 ========================= */
-const allowedOrigins = [
-  process.env.CORS_ORIGIN,
-  "http://localhost:5173",
-].filter(Boolean);
+const allowedStaticOrigins = ["http://localhost:5173"];
 
 app.use(
   cors({
@@ -26,7 +25,12 @@ app.use(
       // Allow non-browser / server-to-server / health checks
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.some((o) => o === origin)) {
+      if (allowedStaticOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Any Vercel frontend (preview or production)
+      if (origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
 
