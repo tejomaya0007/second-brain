@@ -17,19 +17,17 @@ export const AuthProvider = ({ children }) => {
 
   // Check current user on mount using cookie
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await authApi.getMe();
-        setUser(data.user);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const token = localStorage.getItem("token");
 
-    checkAuth();
-  }, []);
+  if (token) {
+    fetch("/api/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+}, []);
+
 
   const login = async (credentials) => {
     try {
