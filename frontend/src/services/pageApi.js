@@ -1,4 +1,5 @@
 import apiClient from './apiClient.js';
+import api from "../lib/api";
 
 export const pageApi = {
   // Create a new page in a notebook
