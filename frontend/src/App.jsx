@@ -1,28 +1,56 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import AddKnowledge from './pages/AddKnowledge';
-import Detail from './pages/Detail';
-import Chat from './pages/Chat';
-import LoginPage from './pages/LoginPage';
-import Profile from './pages/Profile';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import AddKnowledge from "./pages/AddKnowledge";
+import Detail from "./pages/Detail";
+import Chat from "./pages/Chat";
+import LoginPage from "./pages/LoginPage";
+import Profile from "./pages/Profile";
+
+/* ===============================
+   Protected Route Component
+================================ */
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null; // or a spinner
-  return user ? children : <Navigate to="/login" replace />;
+
+  // Show loader while checking auth
+  if (loading) {
+    return (
+      <div style={{ color: "white", textAlign: "center", marginTop: "50px" }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // Redirect if not logged in
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 }
 
+/* ===============================
+   Main App
+================================ */
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
+
+          {/* Layout Wrapper */}
           <Route path="/" element={<Layout />}>
+            {/* Home */}
             <Route index element={<Home />} />
+
+            {/* Dashboard */}
             <Route
               path="dashboard"
               element={
@@ -31,6 +59,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Profile */}
             <Route
               path="profile"
               element={
@@ -39,6 +69,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Add Knowledge */}
             <Route
               path="add"
               element={
@@ -47,6 +79,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Edit Knowledge */}
             <Route
               path="edit/:id"
               element={
@@ -55,6 +89,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* View Entry */}
             <Route
               path="entry/:id"
               element={
@@ -63,6 +99,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Chat */}
             <Route
               path="chat"
               element={
