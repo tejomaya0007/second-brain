@@ -13,22 +13,28 @@ import { errorHandler, notFound } from "./middleware/errorHandler.js";
 const app = express();
 
 /* =========================
-   CORS (Vercel Friendly)
+   CORS (Vercel + Localhost)
 ========================= */
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow Postman, server-to-server, health checks
-    if (!origin) return callback(null, true);
+const allowedOrigins = [
+  process.env.CORS_ORIGIN,
+  "http://localhost:5173",
+].filter(Boolean);
 
-    // Allow all Vercel deployments
-    if (origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow non-browser / server-to-server / health checks
+      if (!origin) return callback(null, true);
 
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-}));
+      if (allowedOrigins.some((o) => o === origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 /* =========================
    Middleware
